@@ -6,7 +6,6 @@
 
 #include <kern/kclock.h>
 
-
 unsigned
 mc146818_read(unsigned reg)
 {

@@ -19,7 +19,6 @@ struct UserStabData {
 	const char *stabstr_end;
 };
 
-
 // stab_binsearch(stabs, region_left, region_right, type, addr)
 //
 //	Some stab types are arranged in increasing order by instruction
@@ -102,7 +101,6 @@ stab_binsearch(const struct Stab *stabs, int *region_left, int *region_right,
 	}
 }
 
-
 // debuginfo_eip(addr, info)
 //
 //	Fill in the 'info' structure with information about the specified
@@ -142,6 +140,8 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 		// Make sure this memory is valid.
 		// Return -1 if it is not.  Hint: Call user_mem_check.
 		// LAB 3: Your code here.
+		if(user_mem_check(curenv, usd, sizeof(struct UserStabData), PTE_P) < 0)
+			return -1;
 
 		stabs = usd->stabs;
 		stab_end = usd->stab_end;
@@ -150,6 +150,11 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 
 		// Make sure the STABS and string table memory is valid.
 		// LAB 3: Your code here.
+		if (user_mem_check(curenv, stabs, stab_end - stabs, PTE_P) < 0)
+			return -1;
+
+		if (user_mem_check(curenv, stabstr, stabstr_end - stabstr, PTE_P) < 0)
+			return -1;
 	}
 
 	// String table validity checks
@@ -206,19 +211,22 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 	//	which one.
 	// Your code here.
 
+	// Using N_SLINE b/c http://www.math.utah.edu/docs/info/stabs_12.html
+	stab_binsearch(stabs, &lline, &rline, N_SLINE, addr);
+	if (!stabs[lline].n_desc)
+		return 1;
+	info->eip_line = stabs[lline].n_desc;
+	info->eip_fn_addr = addr;
 
 	// Search backwards from the line number for the relevant filename
 	// stab.
 	// We can't just use the "lfile" stab because inlined functions
 	// can interpolate code from a different file!
 	// Such included source files use the N_SOL stab type.
-	while (lline >= lfile
-	       && stabs[lline].n_type != N_SOL
-	       && (stabs[lline].n_type != N_SO || !stabs[lline].n_value))
+	while (lline >= lfile && stabs[lline].n_type != N_SOL && (stabs[lline].n_type != N_SO || !stabs[lline].n_value))
 		lline--;
 	if (lline >= lfile && stabs[lline].n_strx < stabstr_end - stabstr)
 		info->eip_file = stabstr + stabs[lline].n_strx;
-
 
 	// Set eip_fn_narg to the number of arguments taken by the function,
 	// or 0 if there was no containing function.

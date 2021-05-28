@@ -5,7 +5,6 @@
 #include <inc/stdio.h>
 #include <inc/stdarg.h>
 
-
 static void
 putch(int ch, int *cnt)
 {
@@ -34,4 +33,3 @@ cprintf(const char *fmt, ...)
 
 	return cnt;
 }
-

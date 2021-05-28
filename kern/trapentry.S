@@ -48,15 +48,50 @@
  * Lab 3: Your code here for generating entry points for the different traps.
  */
 
-// HINT 1 : TRAPHANDLER_NOEC(t_divide, T_DIVIDE);
-//          Do something like this if there is no error code for the trap
-// HINT 2 : TRAPHANDLER(t_dblflt, T_DBLFLT);
-//          Do something like this if the trap includes an error code..
-// HINT 3 : READ Intel's manual to check if the trap includes an error code
-//          or not...
+TRAPHANDLER_NOEC(T_DIVIDE_DEF, T_DIVIDE)
+TRAPHANDLER_NOEC(T_DEBUG_DEF, T_DEBUG)
+TRAPHANDLER_NOEC(T_NMI_DEF, T_NMI)
+TRAPHANDLER_NOEC(T_BRKPT_DEF, T_BRKPT)
+TRAPHANDLER_NOEC(T_OFLOW_DEF, T_OFLOW)
+TRAPHANDLER_NOEC(T_BOUND_DEF, T_BOUND)
+TRAPHANDLER_NOEC(T_ILLOP_DEF, T_ILLOP)
+
+TRAPHANDLER_NOEC(T_DEVICE_DEF, T_DEVICE)
+
+TRAPHANDLER(T_DBLFLT_DEF, T_DBLFLT)
+TRAPHANDLER(T_TSS_DEF, T_TSS)
+TRAPHANDLER(T_SEGNP_DEF, T_SEGNP)
+TRAPHANDLER(T_STACK_DEF, T_STACK)
+TRAPHANDLER(T_GPFLT_DEF, T_GPFLT)
+TRAPHANDLER(T_PGFLT_DEF, T_PGFLT)
+
+TRAPHANDLER_NOEC(T_FPERR_DEF, T_FPERR)
+
+TRAPHANDLER(T_ALIGN_DEF, T_ALIGN)
+
+TRAPHANDLER_NOEC(T_MCHK_DEF, T_MCHK)
+TRAPHANDLER_NOEC(T_SIMDERR_DEF, T_SIMDERR)
+TRAPHANDLER_NOEC(T_SYSCALL_DEF, T_SYSCALL)
+TRAPHANDLER_NOEC(T_DEFAULT_DEF, T_DEFAULT)
+
+
 
 /*
  * Lab 3: Your code here for _alltraps
  */
+_alltraps:
+	pushl %ds
+	pushl %es
 
+	pushal
 
+	pushl $GD_KD
+
+	popl %ds
+
+	pushl $GD_KD
+
+	popl %es
+	pushl %esp
+	
+	call trap
