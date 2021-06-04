@@ -139,11 +139,11 @@ sys_env_set_pgfault_upcall(envid_t envid, void *func)
 {
 	// LAB 4: Your code here.
 	struct Env* e = NULL;
-	cprintf("IM HEREEEE\n");
+
 	if(envid2env(envid, &e, 1)){
 		return -E_BAD_ENV;
 	}
-	cprintf("IM HEREEEE222\n");
+	
 	e->env_pgfault_upcall = func;
 	return 0;
 
@@ -380,16 +380,24 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
 		return sys_exofork();
 	}
 	case SYS_env_set_status:
-	{	return sys_env_set_status((envid_t) a1, (int) a2);
+	{	
+		return sys_env_set_status((envid_t) a1, (int) a2);
 	}
 	case SYS_page_alloc:
-	{	return sys_page_alloc((envid_t) a1, (void *) a2, (int) a3);
+	{	
+		return sys_page_alloc((envid_t) a1, (void *) a2, (int) a3);
 	}
 	case SYS_page_map:
-	{	return sys_page_map((envid_t) a1, (void *) a2, (envid_t) a3, (void *) a4, (int) a5);
+	{	
+		return sys_page_map((envid_t) a1, (void *) a2, (envid_t) a3, (void *) a4, (int) a5);
 	}
 	case SYS_page_unmap:
-	{	return sys_page_unmap((envid_t) a1, (void *) a2);
+	{	
+		return sys_page_unmap((envid_t) a1, (void *) a2);
+	}
+	case SYS_env_set_pgfault_upcall:
+	{
+		return sys_env_set_pgfault_upcall(a1, (void*)a2);
 	}
 	default:
 		return -E_INVAL;
