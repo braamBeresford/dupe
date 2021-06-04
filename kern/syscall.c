@@ -343,33 +343,48 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
 	// Call the function corresponding to the 'syscallno' parameter.
 	// Return any appropriate return value.
 	// LAB 3: Your code here.
-
-	switch (syscallno) {
-		case SYS_cputs:
-			sys_cputs((const char*) a1, (size_t) a2);
-			return 0;
-		case SYS_cgetc:
-			return sys_cgetc();
-		case SYS_getenvid:
-			return sys_getenvid();
-		case SYS_env_destroy:
-			return sys_env_destroy((envid_t) a1);
-		case SYS_yield:
-		{
-			sys_yield();
-			return 0;
-		}
-		case SYS_exofork:
-			return sys_exofork();
-		case SYS_env_set_status:
-			return sys_env_set_status((envid_t) a1, (int) a2);
-		case SYS_page_alloc:
-			return sys_page_alloc((envid_t) a1, (void *) a2, (int) a3);
-		case SYS_page_map:
-			return sys_page_map((envid_t) a1, (void *) a2, (envid_t) a3, (void *) a4, (int) a5);
-		case SYS_page_unmap:
-			return sys_page_unmap((envid_t) a1, (void *) a2);
-		default:
-			return -E_INVAL;
+	switch (syscallno)
+	{
+	case SYS_cputs:
+	{
+		sys_cputs((const char *)a1, (size_t)a2);
+		return 0;
 	}
+	case SYS_cgetc:
+	{
+		return sys_cgetc();
+	}
+	case SYS_getenvid:
+	{
+		return sys_getenvid();
+	}
+	case SYS_env_destroy:
+	{
+		sys_env_destroy((envid_t)a1);
+	}
+	case SYS_yield:
+	{
+		sys_yield();
+		return 0;
+	}
+	case SYS_exofork:
+	{
+		return sys_exofork();
+	}
+	case SYS_env_set_status:
+	{	return sys_env_set_status((envid_t) a1, (int) a2);
+	}
+	case SYS_page_alloc:
+	{	return sys_page_alloc((envid_t) a1, (void *) a2, (int) a3);
+	}
+	case SYS_page_map:
+	{	return sys_page_map((envid_t) a1, (void *) a2, (envid_t) a3, (void *) a4, (int) a5);
+	}
+	case SYS_page_unmap:
+	{	return sys_page_unmap((envid_t) a1, (void *) a2);
+	}
+	default:
+		return -E_INVAL;
+	}
+
 }
