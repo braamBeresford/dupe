@@ -1,0 +1,27 @@
+Question 1:
+MPBOOTPHYS is used to calculate the absolute physical address of a symbol
+rather than relying on a linker to do so. This is necessary as kern/mpentry.S
+is compiled/linked to run above KERNBASE which would cause issues as paging has
+not been enabled on that AP yet. 
+
+
+Question 2:
+Interupts are a major reason that each CPU has its own stack.
+If one CPU is running the kernel and has the lock but a second CPU recieves an
+interrupt this will cause a number of values to be pushed onto the stack.
+If there was a shared stack these new values would interfere with the logic
+on the original CPU. 
+
+
+Question 3:
+This is because e refers to an address in the kernel space which is the same 
+among all environments. The address refered to in one environment points to the same
+data in a different environment. Better said: they map to the same end value. 
+
+Question 4:
+The registers must be saved because the values they hold will be needed when
+that environment begins running again later. Basically the environment must be
+restored to the exact same state (including the registers). From the environment
+perspective a context switch never really happens, as far as it was concerned it
+has no interuptions. The registers are saved into env_tf when trap occurs and 
+restored in env_run(). 
