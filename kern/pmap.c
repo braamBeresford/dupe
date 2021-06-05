@@ -280,7 +280,7 @@ mem_init_mp(void)
 	//     Permissions: kernel RW, user NONE
 	//
 	// LAB 4: Your code here:
-	for (int i = 0; i < NCPU; ++i){ //TODO: This may need to be ++i
+	for (int i = 0; i < NCPU; ++i){
 		boot_map_region(kern_pgdir, KSTACKTOP - KSTKSIZE - i*(KSTKSIZE+ KSTKGAP),
 			KSTKSIZE, PADDR(percpu_kstacks[i]),
 			PTE_P|PTE_W);
@@ -302,7 +302,7 @@ mem_init_mp(void)
 //
 void
 page_init(void)
-{ //TODO: Revert and fix
+{
 	// LAB 4:
 	// Change your code to mark the physical page at MPENTRY_PADDR
 	// as in use
@@ -326,32 +326,79 @@ page_init(void)
 	// free pages!
 
 	//1. Mark page 0 as in use
-	size_t i;
-
-	for (i = 0; i < npages; ++ i) {
+	for (size_t i = 0; i < npages; ++ i) 
+	{
 		if (i == 0) {
 			// Page 0
 			pages[i].pp_ref = 1;
 			pages[i].pp_link = NULL;
-		} else if (i >= IOPHYSMEM / PGSIZE && i < EXTPHYSMEM / PGSIZE) {
+		} 
+		else if (i >= IOPHYSMEM / PGSIZE && i < EXTPHYSMEM / PGSIZE) 
+		{
 			// I/O hole
 			pages[i].pp_ref = 1;
 			pages[i].pp_link = NULL;
-		} else if (i >= EXTPHYSMEM / PGSIZE && i < ((uint32_t)boot_alloc(0) - KERNBASE) / PGSIZE) {
+		} 
+		else if (i >= EXTPHYSMEM / PGSIZE && i < ((uint32_t)boot_alloc(0) - KERNBASE) / PGSIZE) 
+		{
 			// Some data structure that kernel has used in boot_alloc()
 			pages[i].pp_ref = 1;
 			pages[i].pp_link = NULL;
-		} else if (i == MPENTRY_PADDR / PGSIZE) {
+		} 
+		else if (i == MPENTRY_PADDR / PGSIZE) 
+		{
 			// AP bootstrap code
 			pages[i].pp_ref = 1;
 			pages[i].pp_link = NULL;
-		} else {
+		} 
+		else 
+		{
 			// Rest parts are free
 			pages[i].pp_ref = 0;
 			pages[i].pp_link = page_free_list;
 			page_free_list = &pages[i];
 		}
 	}
+
+	//Old lab 3 crap, delete before turnin
+	// pages[0].pp_ref = 1;
+	// pages[0].pp_link = NULL;
+
+	// //2. Free from the first page to npages_basem
+	// size_t i;
+	// for (i = 1; i < IOPHYSMEM / PGSIZE; i++)
+	// {
+	// 	pages[i].pp_ref = 0;
+	// 	pages[i].pp_link = page_free_list;
+	// 	page_free_list = &pages[i];
+	// }
+
+	// //3. The IO hole [IOPHYSMEM, EXTPHYSMEM)
+	// // essentially skip palcing these pages into the free linked list
+	// for (i = IOPHYSMEM / PGSIZE; i < EXTPHYSMEM / PGSIZE; i++)
+	// {
+	// 	pages[i].pp_ref = 1;
+	// 	pages[i].pp_link = NULL;
+	// }
+
+	// int end_pages_mem = ((uint32_t)boot_alloc(0) - KERNBASE) / PGSIZE;
+
+	// for (i = EXTPHYSMEM / PGSIZE; i < end_pages_mem; i++)
+	// {
+	// 	pages[i].pp_ref = 1;
+	// 	pages[i].pp_link = NULL;
+	// }
+	// // Free the rest of it
+	// for (i = end_pages_mem; i < npages; i++)
+	// {
+	// 	pages[i].pp_ref = 0;
+	// 	pages[i].pp_link = page_free_list;
+	// 	page_free_list = &pages[i];
+	// }
+
+	// pages[MPENTRY_PADDR / PGSIZE].pp_ref = 1;
+	// pages[MPENTRY_PADDR / PGSIZE].pp_link = NULL;
+
 }
 
 //
@@ -628,18 +675,16 @@ mmio_map_region(physaddr_t pa, size_t size)
 	// Hint: The staff solution uses boot_map_region.
 	//
 	// Your code here:
+	size_t top = ROUNDUP(size, PGSIZE);
+	size_t bot = ROUNDDOWN(pa, PGSIZE);	
 
-	//TODO: Finish
-	size = ROUNDUP(size, PGSIZE);
-	pa = ROUNDDOWN(pa, PGSIZE);	
-	if (base + size > MMIOLIM) {
+	if (base + top > MMIOLIM) {
 		panic("No enough memory for mmio_map_region");
 	}
-	boot_map_region(kern_pgdir, base, size, pa, PTE_W | PTE_PCD | PTE_PWT);
+	boot_map_region(kern_pgdir, base, top, bot, PTE_W | PTE_PCD | PTE_PWT);
 
-	
 	uintptr_t old_base = base;
-	base += size;
+	base += top;
 
 	return (void *)old_base;
 }

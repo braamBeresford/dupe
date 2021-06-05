@@ -64,7 +64,7 @@ _pgfault_upcall:
 	// may find that you have to rearrange your code in non-obvious
 	// ways as registers become unavailable as scratch space.
 	//
-	// LAB 4: Your code here.//TODO: Fix these registers
+	// LAB 4: Your code here.
 	movl 0x28(%esp), %ebx
 	movl 0x30(%esp), %eax
 	subl $0x4, %eax

@@ -26,7 +26,7 @@ set_pgfault_handler(void (*handler)(struct UTrapframe *utf))
 {
 	int r;
 
-	if (_pgfault_handler == 0) {//TODO: th
+	if (_pgfault_handler == 0) {
 		// First time through!
 		// LAB 4: Your code here.
 		if(sys_page_alloc(0, (void*)(UXSTACKTOP-PGSIZE), PTE_P|PTE_W|PTE_U)<0)
